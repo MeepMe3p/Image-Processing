@@ -9,13 +9,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WebCamLib;
+using ImageProcess2;
 
 namespace Image_Processing
 {
     public partial class Form1 : Form
     {
+        CameraFeed cameraFeed;
         Bitmap loaded, processed;
         Device []devices;
+        int cameraFunction= -1;
         public Form1()
         {
             InitializeComponent();
@@ -25,6 +28,7 @@ namespace Image_Processing
         {
             loaded = new Bitmap(openFileDialog1.FileName);
             pictureBox1.Image = loaded;
+            
         }
 
 
@@ -117,8 +121,10 @@ namespace Image_Processing
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            BasicDIP.Brightness(ref loaded, ref processed,trackBar1.Value);
-            pictureBox2.Image = processed;
+            if(cameraFunction == -1)
+                BasicDIP.Brightness(ref loaded, ref processed,trackBar1.Value);
+                pictureBox2.Image = processed;
+            
         }
 
         private void contrastToolStripMenuItem_Click(object sender, EventArgs e)
@@ -241,40 +247,23 @@ namespace Image_Processing
 
         private void onToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            devices[0].ShowWindow(pictureBox1); // gets the first device then puts it on picture box1 ---- itag an2 daw (?)
+            //devices[0].ShowWindow(pictureBox1); // gets the first device then puts it on picture box1 ---- itag an2 daw (?)
+            cameraFeed = new CameraFeed(pictureBox1);
+            cameraFeed.Start();
+            
+
         }
 
         private void offToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            devices[0].Stop(); // stops
+            //devices[0].Stop(); // stops
+            cameraFeed.Stop();
         }
 
         private void grayscaleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            // GETS 1 FRAME
-            IDataObject data; // I stands for implicit data and can be any type of data or object pwede primitive or class type
-            Image bmap;
-            devices[0].Sendmessage(); // basically mukuha ug usa ka frame sa kani nga device
-            data = Clipboard.GetDataObject(); // get data from clipboad NOTE: idk wtf dis is
-            bmap = (Image)(data.GetData("System.Drawing.Bitmap", true)); // turns it into an image
-            Bitmap b = new Bitmap(bmap);
-
-            processed = new Bitmap(loaded.Width, loaded.Height);
-            Color pixel;
-            int avg;
-            for (int i = 0; i < b.Width; i++)
-            {
-                for (int j = 0; j < b.Height; j++)
-                {
-                    pixel = loaded.GetPixel(i, j);
-                    // get the average for the rgb to make it gray
-                    avg = (int)(pixel.R + pixel.G + pixel.B) / 3;
-                    Color gray = Color.FromArgb(avg, avg, avg);
-                    processed.SetPixel(i, j, gray);
-                }
-            }
-            pictureBox2.Image = processed;
+            timer1.Enabled = true;
+            cameraFunction = 1;
 
 
         }
@@ -284,5 +273,69 @@ namespace Image_Processing
             saveFileDialog1.ShowDialog();
         }
 
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
+            Bitmap b = new Bitmap(pictureBox1.Image);
+            switch (cameraFunction) {
+                case 1:
+                    BitmapFilter.GrayScale(b);
+                    break;
+                case 2:
+                    BitmapFilter.Contrast(b,(sbyte)trackBar2.Value);
+                    break;
+                case 3:
+                    BitmapFilter.Brightness(b,trackBar1.Value);
+                    break;
+                case 4:
+                    BitmapFilter.Invert(b);
+                    break;
+                case 5:
+                    BasicDIP.Hist(ref b, ref b); // edit meh cuz me slow
+                    break;
+                case 6:
+                    
+                    //modify me
+                    break;
+            }
+            pictureBox2.Image = b;
+        }
+
+        private void contrastToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            timer1.Enabled = true;
+            cameraFunction = 2;
+        }
+
+        private void brightnessToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            timer1.Enabled = true;
+            cameraFunction = 3;
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            timer1.Enabled=true;
+            cameraFunction = 4;
+        }
+
+        private void histogramToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            timer1.Enabled = true;
+            cameraFunction = 5;
+        }
+
+        private void sepiaToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            timer1.Enabled = true;
+            cameraFunction = 6;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if(cameraFeed != null)
+                cameraFeed.Stop();  
+            base.OnFormClosing(e);
+        }
     }
 }
