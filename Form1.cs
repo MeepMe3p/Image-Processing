@@ -40,17 +40,9 @@ namespace Image_Processing
 
         private void pixelCopyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            processed = new Bitmap(loaded.Width, loaded.Height);
-            Color pixel;
-            for (int i = 0; i < loaded.Width; i++)
-            {
-                for (int j = 0;j< loaded.Height; j++)
-                {
-                    pixel = loaded.GetPixel(i, j);
-                    processed.SetPixel(i, j, pixel);
-                }
-            }
+            BasicDIP.Copy(ref loaded, ref processed);
             pictureBox2.Image = processed;
+
         }
 
         private void saveFileDialog1_FileOk(object sender, CancelEventArgs e)
@@ -329,6 +321,50 @@ namespace Image_Processing
         {
             timer1.Enabled = true;
             cameraFunction = 6;
+        }
+
+        private void shrinkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void gaussianBlurToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BitmapFilter.GaussianBlur(loaded, 4);
+            pictureBox2.Image = loaded;
+            
+
+        }
+
+        private void shrinkToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            ConvMatrix m =  new ConvMatrix();
+            BitmapFilter.Conv3x3(loaded, m);
+            pictureBox2.Image = loaded;
+        }
+
+        private void smoothingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BitmapFilter.Smooth(loaded, 1);
+            pictureBox2.Image = loaded;
+        }
+
+        private void sharpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+           BitmapFilter.Sharpen(loaded,11);
+            pictureBox2.Image = loaded;
+        }
+
+        private void meanRemovalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BitmapFilter.MeanRemoval(loaded, 9);
+            pictureBox2.Image = loaded;
+        }
+
+        private void embossLaplascianToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BitmapFilter.EmbossLaplacian(loaded);
+            pictureBox2.Image = loaded;
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

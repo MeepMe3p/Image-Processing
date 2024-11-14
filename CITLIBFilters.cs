@@ -15,8 +15,13 @@ using System.Drawing.Imaging;
 
 namespace ImageProcess2
 {
+	// source and destination bitmap
+	// creates a copy of the bitmap coming in and use the copy as a source
 	public class ConvMatrix
 	{
+		//  0  0  0
+		//  0  1  0
+		//  0  0  0
 		public int TopLeft = 0, TopMid = 0, TopRight = 0;
 		public int MidLeft = 0, Pixel = 1, MidRight = 0;
 		public int BottomLeft = 0, BottomMid = 0, BottomRight = 0;

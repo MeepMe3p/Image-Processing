@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebCamLib;
 using ImageProcess2;
+using System.Windows.Forms;
 namespace Image_Processing
 {
     static class BasicDIP
@@ -72,6 +73,19 @@ namespace Image_Processing
                 {
                     Color temp = Color.FromArgb(yMap[a.GetPixel(i, j).R], yMap[a.GetPixel(i, j).G], yMap[a.GetPixel(i, j).B]);
                     b.SetPixel(i, j, temp);
+                }
+            }
+        }
+        public static void Copy(ref Bitmap a, ref Bitmap b)
+        {
+            b = new Bitmap(a.Width, a.Height);
+            Color pixel;
+            for (int i = 0; i < a.Width; i++)
+            {
+                for (int j = 0; j < a.Height; j++)
+                {
+                    pixel = a.GetPixel(i, j);
+                    b.SetPixel(i, j, pixel);
                 }
             }
         }
